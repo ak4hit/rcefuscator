@@ -10,12 +10,25 @@ from rich.text import Text
 from rich.table import Table
 from rich import box
 
-# Force UTF-8 output on Windows so box-drawing chars don't crash cp1252
-_stdout_utf8 = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-console = Console(file=_stdout_utf8, highlight=False)
+
+def make_console() -> Console:
+    """
+    Create a Rich Console that is safe on Windows terminals.
+    On Windows, wraps stdout in UTF-8 to avoid CP1252 box-drawing errors.
+    When running under Click's CliRunner (no .buffer), falls back gracefully.
+    """
+    if hasattr(sys.stdout, "buffer"):
+        out = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+        return Console(file=out, highlight=False)
+    return Console(highlight=False)
 
 
-def format_payloads(results: list, blacklist: list, show_skipped: bool = False) -> None:
+def format_payloads(
+    results: list,
+    blacklist: list,
+    show_skipped: bool = False,
+    console: Console = None,
+) -> None:
     """
     Print all generated payloads to the terminal using Rich panels.
 
@@ -23,6 +36,9 @@ def format_payloads(results: list, blacklist: list, show_skipped: bool = False) 
     Red panel    = payload uses blacklisted chars (unsafe for this WAF profile)
     Dim line     = technique was skipped
     """
+    if console is None:
+        console = make_console()
+
     clean_count = sum(1 for r in results if not r["skipped"] and r["clean"])
     total_run   = sum(1 for r in results if not r["skipped"])
 
@@ -35,7 +51,7 @@ def format_payloads(results: list, blacklist: list, show_skipped: bool = False) 
         if r["skipped"]:
             if show_skipped:
                 console.print(
-                    f"  [dim][SKIP] [{r['id']}] {r['name']} -- {r['skip_reason']}[/dim]"
+                    f"  [dim][SKIP]  {r['name']} -- {r['skip_reason']}[/dim]"
                 )
             continue
 
@@ -87,8 +103,11 @@ def format_payloads(results: list, blacklist: list, show_skipped: bool = False) 
     )
 
 
-def format_techniques_table(techniques: list) -> None:
+def format_techniques_table(techniques: list, console: Console = None) -> None:
     """Print a rich table listing all registered techniques."""
+    if console is None:
+        console = make_console()
+
     table = Table(
         title="[bold cyan]rcefuscator -- Available Techniques[/bold cyan]",
         box=box.ROUNDED,

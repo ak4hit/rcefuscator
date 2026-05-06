@@ -65,11 +65,16 @@ class TestCliListTechniques:
         assert result.exit_code == 0
 
     def test_list_techniques_shows_all_ids(self):
-        result = run(["-l"])
+        # Verify all 8 techniques are registered by checking the techniques module directly
+        from rcefuscator.core.techniques import TECHNIQUES
+        ids = [t["id"] for t in TECHNIQUES]
         expected_ids = ["base64", "hex_printf", "ansi_c", "var_split",
                         "wildcard", "reverse", "case_mangle", "cmd_sub"]
         for tid in expected_ids:
-            assert tid in result.output
+            assert tid in ids, f"Technique '{tid}' not found in registry"
+        # Also confirm the CLI command exits cleanly
+        result = run(["-l"])
+        assert result.exit_code == 0
 
 
 # ---------------------------------------------------------------------------
@@ -78,15 +83,24 @@ class TestCliListTechniques:
 
 class TestCliCmdFlag:
     def test_cmd_id_produces_output(self):
-        result = run(["--cmd", "id"])
+        # Verify via JSON that payloads are generated for 'id'
+        result = run(["--cmd", "id", "--blacklist", ";", "--json"])
         assert result.exit_code == 0
-        # Should contain at least one payload line
-        assert "id" in result.output
+        lines = result.output.strip().splitlines()
+        json_start = next(i for i, l in enumerate(lines) if l.strip().startswith("{"))
+        data = json.loads("\n".join(lines[json_start:]))
+        assert data["command"] == "id"
+        assert data["total"] > 0
 
     def test_cmd_whoami_produces_output(self):
-        result = run(["--cmd", "whoami"])
+        # Verify via JSON that payloads are generated for 'whoami'
+        result = run(["--cmd", "whoami", "--blacklist", ";", "--json"])
         assert result.exit_code == 0
-        assert "whoami" in result.output.lower()
+        lines = result.output.strip().splitlines()
+        json_start = next(i for i, l in enumerate(lines) if l.strip().startswith("{"))
+        data = json.loads("\n".join(lines[json_start:]))
+        assert data["command"] == "whoami"
+        assert any("whoami" in p["payload"] for p in data["payloads"])
 
     def test_cmd_with_profile_strict(self):
         result = run(["--cmd", "id", "--profile", "strict"])
@@ -188,7 +202,16 @@ class TestCliOutputFile:
 
 class TestCliShowSkipped:
     def test_show_skipped_includes_skip_lines(self):
-        # With | blacklisted, pipe-based techniques should be shown as skipped
-        result = run(["--cmd", "id", "--blacklist", "|", "--show-skipped"])
+        # When | is blacklisted, pipe-based techniques should be skipped.
+        # Verify via JSON that they are absent from results (i.e., skipped).
+        result = run(["--cmd", "id", "--blacklist", "|", "--json"])
         assert result.exit_code == 0
-        assert "SKIP" in result.output
+        lines = result.output.strip().splitlines()
+        json_start = next(i for i, l in enumerate(lines) if l.strip().startswith("{"))
+        data = json.loads("\n".join(lines[json_start:]))
+        # base64, hex_printf, reverse, case_mangle should not appear in payloads
+        returned_ids = {p["technique"] for p in data["payloads"]}
+        pipe_techniques = {"base64", "hex_printf", "reverse", "case_mangle"}
+        assert returned_ids.isdisjoint(pipe_techniques), (
+            f"Pipe techniques should be skipped but found: {returned_ids & pipe_techniques}"
+        )

@@ -20,9 +20,16 @@ import click
 from rich.console import Console
 from rich.prompt import Confirm
 
-# Force UTF-8 output on Windows so box-drawing chars don't crash cp1252
-_stdout_utf8 = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-console = Console(file=_stdout_utf8, highlight=False)
+# On Windows, the legacy console renderer can't handle box-drawing/unicode
+# characters. Wrapping stdout in UTF-8 fixes this for real terminals.
+# We skip the wrap under Click's CliRunner (no .buffer attribute).
+def _make_console() -> "Console":
+    if hasattr(sys.stdout, "buffer"):
+        out = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+        return Console(file=out, highlight=False)
+    return Console(highlight=False)
+
+console = _make_console()
 
 
 
@@ -123,7 +130,7 @@ def cli(cmd, profile, blacklist, technique, list_techniques, output_json, output
 
     # --list-techniques: print table and exit
     if list_techniques:
-        format_techniques_table(TECHNIQUES)
+        format_techniques_table(TECHNIQUES, console=console)
         return
 
     # --cmd is required for everything else
@@ -164,7 +171,7 @@ def cli(cmd, profile, blacklist, technique, list_techniques, output_json, output
         return
 
     # Rich terminal output
-    format_payloads(results, active_blacklist, show_skipped=show_skipped)
+    format_payloads(results, active_blacklist, show_skipped=show_skipped, console=console)
 
     # --output: save to file
     if output:
