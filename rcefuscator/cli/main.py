@@ -13,13 +13,17 @@ Usage examples:
 """
 
 import sys
+import io
 from pathlib import Path
 
 import click
 from rich.console import Console
 from rich.prompt import Confirm
 
-console = Console(highlight=False)
+# Force UTF-8 output on Windows so box-drawing chars don't crash cp1252
+_stdout_utf8 = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+console = Console(file=_stdout_utf8, highlight=False)
+
 
 
 # Path where one-time disclaimer acknowledgment is stored

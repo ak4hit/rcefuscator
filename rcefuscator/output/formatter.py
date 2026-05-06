@@ -2,13 +2,17 @@
 output/formatter.py -- Rich terminal output formatter for rcefuscator.
 """
 
+import sys
+import io
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 from rich.table import Table
 from rich import box
 
-console = Console(highlight=False)
+# Force UTF-8 output on Windows so box-drawing chars don't crash cp1252
+_stdout_utf8 = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+console = Console(file=_stdout_utf8, highlight=False)
 
 
 def format_payloads(results: list, blacklist: list, show_skipped: bool = False) -> None:
