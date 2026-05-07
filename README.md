@@ -210,13 +210,6 @@ rcefuscator/
 
 ---
 
-## 🔧 Install
-
-```bash
-git clone https://github.com/ak4hit/rcefuscator.git
-cd rcefuscator
-pipx install .
-```
 
 ### Linux Clipboard Support (optional — for `--copy` flag)
 
