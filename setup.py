@@ -6,7 +6,7 @@ setup(
     description="RCE Payload Generator & WAF Evasion Toolkit for authorized penetration testing",
     author="ak4hit",
     packages=find_packages(),
-    install_requires=["click", "rich", "pyperclip"],
+    install_requires=["click", "rich", "pyperclip", "pyfiglet"],
     entry_points={
         "console_scripts": [
             "rcefuscator=rcefuscator.cli.main:cli",

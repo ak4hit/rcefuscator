@@ -119,11 +119,15 @@ def cli(cmd, profile, blacklist, technique, list_techniques, output_json, output
     rcefuscator -- RCE Payload Generator & WAF Evasion Toolkit
     Educational use only. See DISCLAIMER.md.
     """
+    from rcefuscator.cli.banner import print_banner
     from rcefuscator.core.techniques import (
         TECHNIQUES, run_all_techniques, get_technique_by_id,
     )
     from rcefuscator.output.formatter import format_payloads, format_techniques_table
     from rcefuscator.output.exporter import export_json, export_to_file
+
+    # Animated banner — always shown at startup
+    print_banner(console)
 
     # Always check disclaimer first
     _check_disclaimer()

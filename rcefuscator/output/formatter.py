@@ -94,13 +94,22 @@ def format_payloads(
             )
         )
 
+    skipped_count = sum(1 for r in results if r["skipped"])
+
     console.print()
     console.rule(style="dim")
-    console.print(
+
+    summary = (
         f"\n  [bold]Generated [cyan]{total_run}[/cyan] payloads.[/bold]  "
         f"[green]{clean_count} clean[/green] for your WAF profile.  "
-        f"[red]{total_run - clean_count} flagged[/red].\n"
+        f"[red]{total_run - clean_count} flagged[/red]."
     )
+    if skipped_count:
+        summary += (
+            f"  [dim]{skipped_count} skipped "
+            f"(use [bold]--show-skipped[/bold] to see them).[/dim]"
+        )
+    console.print(summary + "\n")
 
 
 def format_techniques_table(techniques: list, console: Console = None) -> None:

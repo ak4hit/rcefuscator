@@ -63,9 +63,9 @@ TECHNIQUES = [
         "id":          "var_split",
         "name":        "Variable Splitting",
         "function":    var_split,
-        "uses_chars":  ["$", ";"],
+        "uses_chars":  ["$", "'"],
         "shell":       "bash/sh",
-        "description": "Splits command into 2-char chunks assigned to vars, concatenated via $a$b",
+        "description": "Splits command into 2-char chunks assigned to vars, joined via $'\\n' newline separator",
     },
     {
         "id":          "wildcard",
