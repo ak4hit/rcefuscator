@@ -113,8 +113,10 @@ def _resolve_blacklist(profile: str, blacklist_str) -> tuple:
               help="Copy the first clean payload to clipboard")
 @click.option("--show-skipped", is_flag=True, default=False,
               help="Show skipped techniques in the output")
+@click.option("--quiet",       "-q", is_flag=True, default=False,
+              help="Suppress the animated banner")
 @click.version_option("1.0.0", prog_name="rcefuscator")
-def cli(cmd, profile, blacklist, technique, list_techniques, output_json, output, copy, show_skipped):
+def cli(cmd, profile, blacklist, technique, list_techniques, output_json, output, copy, show_skipped, quiet):
     """
     \b
     rcefuscator -- RCE Payload Generator & WAF Evasion Toolkit
@@ -127,8 +129,9 @@ def cli(cmd, profile, blacklist, technique, list_techniques, output_json, output
     from rcefuscator.output.formatter import format_payloads, format_techniques_table
     from rcefuscator.output.exporter import export_json, export_to_file
 
-    # Animated banner — always shown at startup
-    print_banner(console)
+    # Animated banner — shown by default unless --quiet or JSON output is requested
+    if not quiet and not output_json:
+        print_banner(console)
 
     # Always check disclaimer first
     _check_disclaimer()
@@ -150,13 +153,14 @@ def cli(cmd, profile, blacklist, technique, list_techniques, output_json, output
         console.print(f"[red]{e}[/red]")
         sys.exit(1)
 
-    # Announce what we're running
+    # Announce what we're running (unless json output is requested)
     blocked_str = " ".join(active_blacklist) if active_blacklist else "none"
-    console.print(
-        f"\n  [dim]Command:[/dim] [bold cyan]{cmd}[/bold cyan]   "
-        f"[dim]Profile:[/dim] [bold]{active_profile}[/bold]   "
-        f"[dim]Blocked:[/dim] [yellow]{blocked_str}[/yellow]"
-    )
+    if not output_json:
+        console.print(
+            f"\n  [dim]Command:[/dim] [bold cyan]{cmd}[/bold cyan]   "
+            f"[dim]Profile:[/dim] [bold]{active_profile}[/bold]   "
+            f"[dim]Blocked:[/dim] [yellow]{blocked_str}[/yellow]"
+        )
 
     # Run techniques
     if technique:
