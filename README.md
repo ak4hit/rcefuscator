@@ -39,7 +39,7 @@ It targets the `shell_exec($_GET['cmd'])` PHP sink context but applies broadly t
 # Clone and install
 git clone https://github.com/ak4hit/rcefuscator.git
 cd rcefuscator
-pip install -e .
+pipx install .
 
 # Generate all payloads for 'id' under the moderate WAF profile
 rcefuscator --cmd "id"
@@ -215,7 +215,7 @@ rcefuscator/
 ```bash
 git clone https://github.com/ak4hit/rcefuscator.git
 cd rcefuscator
-pip install -e .
+pipx install .
 ```
 
 ### Linux Clipboard Support (optional — for `--copy` flag)

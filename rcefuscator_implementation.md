@@ -120,7 +120,7 @@ pytest==8.3.0
 > sudo dnf install xclip    # Fedora
 > ```
 
-### 1.3 — Create `setup.py` for pip install 🤖
+### 1.3 — Create `setup.py` for pipx install 🤖
 
 ```python
 from setuptools import setup, find_packages
@@ -416,7 +416,7 @@ Antigravity will generate a `tests/functional_test.sh` script that loops through
 Sections:
 1. **What it is** (2 sentences)
 2. **Disclaimer** (link to DISCLAIMER.md)
-3. **Install** (`pip install .` or `pip install -e .`)
+3. **Install** (`pipx install .` or use a venv for `pip install -e .`)
 4. **Usage** (all CLI flags with examples)
 5. **Techniques Table** (all 9, with example output for `id`)
 6. **WAF Profiles** (strict / moderate / paranoid / custom)
