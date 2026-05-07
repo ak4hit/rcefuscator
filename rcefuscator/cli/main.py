@@ -77,8 +77,9 @@ def _resolve_blacklist(profile: str, blacklist_str) -> tuple:
     from rcefuscator.core.techniques import WAF_PROFILES
 
     if blacklist_str:
-        # Split on whitespace or commas
-        chars = [c.strip() for c in blacklist_str.replace(",", " ").split() if c.strip()]
+        # Extract all characters, ignoring spaces and commas
+        # Allows both `--blacklist "; | &"` and `--blacklist ";|&"`
+        chars = list(dict.fromkeys(c for c in blacklist_str if c not in " ,"))
         return chars, "custom"
 
     if profile not in WAF_PROFILES:
